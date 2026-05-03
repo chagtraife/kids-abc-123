@@ -69,7 +69,8 @@ private fun AppContent(
         composable("learning") {
             LearningScreen(
                 items = items,
-                onNavigateToQuiz = { navController.navigate("quiz") }
+                onNavigateToQuiz = { navController.navigate("quiz") },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
         composable("quiz") {

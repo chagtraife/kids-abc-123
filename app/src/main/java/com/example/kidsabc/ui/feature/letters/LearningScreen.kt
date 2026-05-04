@@ -29,6 +29,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,13 +63,16 @@ private val bubbleColors = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LearningScreen(
-    items: List<LetterItem>,
+    uppercaseItems: List<LetterItem>,
+    lowercaseItems: List<LetterItem>,
     onNavigateToQuiz: () -> Unit,
     onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
     var selectedItem by remember { mutableStateOf<LetterItem?>(null) }
+    var isUppercase by remember { mutableStateOf(true) }
+    val items = if (isUppercase) uppercaseItems else lowercaseItems
 
     DisposableEffect(Unit) {
         var instance: TextToSpeech? = null
@@ -88,6 +92,10 @@ fun LearningScreen(
     val pages = remember(items) { items.chunked(chunkSize) }
     val pagerState = rememberPagerState(pageCount = { pages.size })
 
+    LaunchedEffect(isUppercase) {
+        pagerState.scrollToPage(0)
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         PolkaDotBackground()
 
@@ -98,6 +106,45 @@ fun LearningScreen(
                     .weight(1f)
                     .fillMaxHeight()
             ) {
+                // Case toggle
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    listOf(true to "Hoa", false to "Thường").forEach { (upper, label) ->
+                        val active = isUppercase == upper
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(
+                                    if (active) Color.White
+                                    else Color.White.copy(alpha = 0.25f)
+                                )
+                                .pointerInput(upper, isUppercase) {
+                                    detectTapGestures(onTap = {
+                                        if (!active) {
+                                            isUppercase = upper
+                                            selectedItem = null
+                                        }
+                                    })
+                                }
+                                .padding(horizontal = 20.dp, vertical = 6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (active) Color(0xFF5E35B1) else Color.White
+                            )
+                        }
+                    }
+                }
+
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.weight(1f)

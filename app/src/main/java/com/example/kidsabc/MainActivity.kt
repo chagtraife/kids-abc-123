@@ -63,19 +63,27 @@ private fun AppContent(
     isLetters: Boolean,
     onToggleMode: () -> Unit
 ) {
-    val items = if (isLetters) SampleData.letters else SampleData.numbers
-
     NavHost(navController = navController, startDestination = "learning") {
         composable("learning") {
-            LearningScreen(
-                items = items,
-                onNavigateToQuiz = { navController.navigate("quiz") },
-                onNavigateBack = { navController.popBackStack() }
-            )
+            if (isLetters) {
+                LearningScreen(
+                    uppercaseItems = SampleData.letterUppercase,
+                    lowercaseItems = SampleData.letterLowercase,
+                    onNavigateToQuiz = { navController.navigate("quiz") },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            } else {
+                LearningScreen(
+                    uppercaseItems = SampleData.numbers,
+                    lowercaseItems = SampleData.numbers,
+                    onNavigateToQuiz = { navController.navigate("quiz") },
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
         composable("quiz") {
             QuizScreen(
-                items = items,
+                items = SampleData.letters,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

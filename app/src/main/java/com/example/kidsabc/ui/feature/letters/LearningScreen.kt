@@ -84,17 +84,10 @@ fun LearningScreen(
         PolkaDotBackground()
 
         Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(
-                onBack = onNavigateBack,
-                onReadAll = {
-                    items.forEachIndexed { i, item ->
-                        val mode = if (i == 0) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD
-                        tts?.speak(item.letter, mode, null, "letter_$i")
-                    }
-                },
-                onSing = {},
-                onInfo = onNavigateToQuiz
-            )
+//            TopBar(
+//                onBack = onNavigateBack,
+//                onInfo = onNavigateToQuiz
+//            )
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(8),
@@ -141,8 +134,6 @@ private fun PolkaDotBackground() {
 @Composable
 private fun TopBar(
     onBack: () -> Unit,
-    onReadAll: () -> Unit,
-    onSing: () -> Unit,
     onInfo: () -> Unit
 ) {
     Row(
@@ -154,14 +145,6 @@ private fun TopBar(
     ) {
         CircleButton(color = Color(0xFFE53935), onClick = onBack) {
             Text("◀", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            CircleButton(color = Color(0xFF66BB6A), onClick = onReadAll) {
-                Text("Đọc", fontSize = 15.sp, color = Color.White, fontWeight = FontWeight.Bold)
-            }
-            CircleButton(color = Color(0xFFE91E63), onClick = onSing) {
-                Text("Hát", fontSize = 15.sp, color = Color.White, fontWeight = FontWeight.Bold)
-            }
         }
         CircleButton(color = Color(0xFF7B1FA2), onClick = onInfo) {
             Text("i", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)

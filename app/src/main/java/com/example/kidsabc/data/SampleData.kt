@@ -30,8 +30,7 @@ object SampleData {
         LetterItem(id = 26, letter = "Ư",  word = "Ưu tiên (Priority)",   pronunciation = "ư",      emoji = "⭐"),
         LetterItem(id = 27, letter = "V",  word = "Vẹt (Parrot)",         pronunciation = "vờ",     emoji = "🦜"),
         LetterItem(id = 28, letter = "X",  word = "Xà phòng (Soap)",      pronunciation = "xờ",     emoji = "🧼"),
-        LetterItem(id = 29, letter = "Y",  word = "Yêu (Love)",           pronunciation = "i dài",  emoji = "❤️"),
-        LetterItem(id = 30, letter = "Z",  word = "Zoo (Zoo)",            pronunciation = "dét",    emoji = "🦁")
+        LetterItem(id = 29, letter = "Y",  word = "Yêu (Love)",           pronunciation = "i dài",  emoji = "❤️")
     )
 
     val letterLowercase = listOf(
@@ -63,8 +62,7 @@ object SampleData {
         LetterItem(id = 26, letter = "ư",  word = "Ưu tiên (Priority)",   pronunciation = "ư",      emoji = "⭐"),
         LetterItem(id = 27, letter = "v",  word = "Vẹt (Parrot)",         pronunciation = "vờ",     emoji = "🦜"),
         LetterItem(id = 28, letter = "x",  word = "Xà phòng (Soap)",      pronunciation = "xờ",     emoji = "🧼"),
-        LetterItem(id = 29, letter = "y",  word = "Yêu (Love)",           pronunciation = "i dài",  emoji = "❤️"),
-        LetterItem(id = 30, letter = "z",  word = "Zoo (Zoo)",            pronunciation = "dét",    emoji = "🦁")
+        LetterItem(id = 29, letter = "y",  word = "Yêu (Love)",           pronunciation = "i dài",  emoji = "❤️")
     )
 
     // Default to uppercase for compatibility

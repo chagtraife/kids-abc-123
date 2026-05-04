@@ -11,17 +11,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -107,21 +104,34 @@ fun LearningScreen(
                 ) { pageIndex ->
                     val pageItems = pages[pageIndex]
                     val startIndex = pageIndex * chunkSize
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(5),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        modifier = Modifier.fillMaxSize()
+                    val rows = pageItems.chunked(5)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        itemsIndexed(pageItems) { index, item ->
-                            BubbleLetter(
-                                letter = item.letter,
-                                color = bubbleColors[(startIndex + index) % bubbleColors.size],
-                                isSelected = item == selectedItem,
-                                onClick = {
-                                    selectedItem = item
-                                    tts?.speak(item.pronunciation, TextToSpeech.QUEUE_FLUSH, null, null)
+                        rows.forEachIndexed { rowIndex, rowItems ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                rowItems.forEachIndexed { colIndex, item ->
+                                    BubbleLetter(
+                                        letter = item.letter,
+                                        color = bubbleColors[(startIndex + rowIndex * 5 + colIndex) % bubbleColors.size],
+                                        isSelected = item == selectedItem,
+                                        modifier = Modifier.weight(1f),
+                                        onClick = {
+                                            selectedItem = item
+                                            tts?.speak(item.pronunciation, TextToSpeech.QUEUE_FLUSH, null, null)
+                                        }
+                                    )
                                 }
-                            )
+                                repeat(5 - rowItems.size) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                }
+                            }
                         }
                     }
                 }
@@ -272,6 +282,7 @@ private fun BubbleLetter(
     letter: String,
     color: Color,
     isSelected: Boolean = false,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     var pressed by remember { mutableStateOf(false) }
@@ -285,7 +296,7 @@ private fun BubbleLetter(
     )
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .aspectRatio(1f)
             .padding(4.dp)
             .graphicsLayer(scaleX = scale, scaleY = scale)

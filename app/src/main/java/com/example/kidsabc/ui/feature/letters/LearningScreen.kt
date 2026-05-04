@@ -99,7 +99,7 @@ fun LearningScreen(
                         letter = item.letter,
                         color = bubbleColors[index % bubbleColors.size],
                         onClick = {
-                            tts?.speak(item.letter, TextToSpeech.QUEUE_FLUSH, null, null)
+                            tts?.speak(item.pronunciation, TextToSpeech.QUEUE_FLUSH, null, null)
                         }
                     )
                 }

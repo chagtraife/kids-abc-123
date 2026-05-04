@@ -131,3 +131,6 @@ data class LetterItem(
 ---
 
 **Built with ❤️ for Vietnamese kids learning!**
+
+<img height="700" alt="image" src="https://github.com/user-attachments/assets/b95bb394-e702-472d-9005-c9c88ef766dc" />
+

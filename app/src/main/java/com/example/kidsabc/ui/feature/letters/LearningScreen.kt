@@ -194,7 +194,7 @@ private fun DetailPanel(item: LetterItem, onTap: () -> Unit) {
                 .fillMaxSize()
                 .clip(RoundedCornerShape(24.dp))
                 .background(Color.White.copy(alpha = 0.88f))
-                .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
+                .pointerInput(item) { detectTapGestures(onTap = { onTap() }) },
             contentAlignment = Alignment.Center
         ) {
             val caption = item.word

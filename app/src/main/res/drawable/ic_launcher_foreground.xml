@@ -4,7 +4,30 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- T1 -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M31,63.9c0,2.8 2.3,5.1 5.1,5.1h35.8c2.8,0 5.1,-2.3 5.1,-5.1v-35.8c0,-2.8 -2.3,-5.1 -5.1,-5.1h-35.8c-2.8,0 -5.1,2.3 -5.1,5.1v35.8z" />
+        android:pathData="M26,28 L52,28 L52,40 L44,40 L44,75 L34,75 L34,40 L26,40 Z"/>
+
+    <!-- T2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,28 L82,28 L82,40 L74,40 L74,75 L64,75 L64,40 L56,40 Z"/>
+
+    <!-- Underline accent bar below TT -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M34,79 L74,79 L74,83 L34,83 Z"/>
+
+    <!-- abc — three colored dots representing the alphabet -->
+    <!-- a: red -->
+    <path android:fillColor="#FF5252"
+        android:pathData="M38,91 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <!-- b: yellow -->
+    <path android:fillColor="#FFD600"
+        android:pathData="M49,91 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
+    <!-- c: cyan -->
+    <path android:fillColor="#40C4FF"
+        android:pathData="M60,91 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0"/>
 </vector>

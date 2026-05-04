@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,7 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -57,6 +62,7 @@ private val bubbleColors = listOf(
     Color(0xFF1A237E), Color(0xFF43A047)
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LearningScreen(
     items: List<LetterItem>,
@@ -65,6 +71,7 @@ fun LearningScreen(
 ) {
     val context = LocalContext.current
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var selectedItem by remember { mutableStateOf<LetterItem?>(null) }
 
     DisposableEffect(Unit) {
         var instance: TextToSpeech? = null
@@ -80,29 +87,158 @@ fun LearningScreen(
         }
     }
 
+    val chunkSize = (items.size + 2) / 3
+    val pages = remember(items) { items.chunked(chunkSize) }
+    val pagerState = rememberPagerState(pageCount = { pages.size })
+
     Box(modifier = Modifier.fillMaxSize()) {
         PolkaDotBackground()
 
-        Column(modifier = Modifier.fillMaxSize()) {
-//            TopBar(
-//                onBack = onNavigateBack,
-//                onInfo = onNavigateToQuiz
-//            )
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(8),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                modifier = Modifier.fillMaxSize()
+        Row(modifier = Modifier.fillMaxSize()) {
+            // Left half: letter grid with pager
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             ) {
-                itemsIndexed(items) { index, item ->
-                    BubbleLetter(
-                        letter = item.letter,
-                        color = bubbleColors[index % bubbleColors.size],
-                        onClick = {
-                            tts?.speak(item.pronunciation, TextToSpeech.QUEUE_FLUSH, null, null)
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.weight(1f)
+                ) { pageIndex ->
+                    val pageItems = pages[pageIndex]
+                    val startIndex = pageIndex * chunkSize
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(5),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        itemsIndexed(pageItems) { index, item ->
+                            BubbleLetter(
+                                letter = item.letter,
+                                color = bubbleColors[(startIndex + index) % bubbleColors.size],
+                                isSelected = item == selectedItem,
+                                onClick = {
+                                    selectedItem = item
+                                    tts?.speak(item.pronunciation, TextToSpeech.QUEUE_FLUSH, null, null)
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    repeat(pages.size) { index ->
+                        val selected = pagerState.currentPage == index
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 6.dp)
+                                .size(if (selected) 14.dp else 9.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (selected) Color.White
+                                    else Color.White.copy(alpha = 0.45f)
+                                )
+                        )
+                    }
+                }
+            }
+
+            // Right half: detail panel
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                val current = selectedItem
+                if (current != null) {
+                    DetailPanel(
+                        item = current,
+                        onTap = {
+                            val wordVi = current.word.substringBefore(" (").substringAfter("- ").trim()
+                            tts?.speak(wordVi, TextToSpeech.QUEUE_FLUSH, null, null)
                         }
                     )
+                } else {
+                    EmptyDetailPanel()
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailPanel(item: LetterItem, onTap: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White.copy(alpha = 0.88f))
+                .pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
+            contentAlignment = Alignment.Center
+        ) {
+            val caption = item.word
+                .substringBefore(" (")
+                .substringAfter("- ")
+                .trim()
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = item.emoji,
+                    fontSize = 80.sp,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = caption,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5E35B1),
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyDetailPanel() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color.White.copy(alpha = 0.25f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(text = "👆", fontSize = 48.sp)
+                Text(
+                    text = "Chọn một chữ cái",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -132,28 +268,12 @@ private fun PolkaDotBackground() {
 }
 
 @Composable
-private fun TopBar(
-    onBack: () -> Unit,
-    onInfo: () -> Unit
+private fun BubbleLetter(
+    letter: String,
+    color: Color,
+    isSelected: Boolean = false,
+    onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CircleButton(color = Color(0xFFE53935), onClick = onBack) {
-            Text("◀", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)
-        }
-        CircleButton(color = Color(0xFF7B1FA2), onClick = onInfo) {
-            Text("i", fontSize = 22.sp, color = Color.White, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-private fun BubbleLetter(letter: String, color: Color, onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
     val scale by animateFloatAsState(
         targetValue = if (pressed) 0.75f else 1f,
@@ -179,44 +299,32 @@ private fun BubbleLetter(letter: String, color: Color, onClick: () -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
-        // White outline for bubble effect
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.35f))
+            )
+        }
         Text(
             text = letter,
             style = TextStyle(
-                fontSize = 52.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = Color.White,
-                drawStyle = Stroke(width = 20f, join = StrokeJoin.Round),
+                drawStyle = Stroke(width = 16f, join = StrokeJoin.Round),
                 textAlign = TextAlign.Center
             )
         )
-        // Colored fill
         Text(
             text = letter,
             style = TextStyle(
-                fontSize = 52.sp,
+                fontSize = 40.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = color,
                 textAlign = TextAlign.Center
             )
         )
-    }
-}
-
-@Composable
-private fun CircleButton(
-    color: Color,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(56.dp)
-            .clip(CircleShape)
-            .background(color)
-            .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) },
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }

@@ -5,5 +5,6 @@ data class LetterItem(
     val letter: String,
     val word: String,
     val pronunciation: String = letter,
+    val emoji: String = "❓",
     val audioResId: Int = 0
 )
